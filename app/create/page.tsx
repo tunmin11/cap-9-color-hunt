@@ -87,7 +87,7 @@ export default function CreatePackPage() {
                             <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#A41F13]"></div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
+                        <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6 mb-12">
                             {colors.map((color) => (
                                 <button
                                     key={color.id}

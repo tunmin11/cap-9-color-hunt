@@ -212,7 +212,7 @@ export default function ProfilePage() {
                             )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                             {displayedPacks.map((pack) => (
                                 <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
                                     <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">

@@ -34,7 +34,7 @@ export default function FeedPage() {
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background text-foreground p-4 pb-24">
-                <div className="max-w-2xl mx-auto">
+                <div className="w-full max-w-md md:max-w-2xl mx-auto">
                     <h1 className="text-3xl font-black mb-8 text-[#A41F13] tracking-tight">
                         Global Hunt Feed
                     </h1>
