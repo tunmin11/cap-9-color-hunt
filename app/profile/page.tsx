@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const [newName, setNewName] = useState("");
     const [newAvatar, setNewAvatar] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
-    const { logout } = useAuth();
+    const { logout, refreshUser } = useAuth();
 
     useEffect(() => {
         if (!user) return;
