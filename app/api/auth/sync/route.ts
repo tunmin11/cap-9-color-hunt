@@ -10,6 +10,21 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Check for unique username (displayName) if provided
+        if (displayName) {
+            const usernameQuery = await adminDb.collection("users")
+                .where("displayName", "==", displayName)
+                .get();
+
+            if (!usernameQuery.empty) {
+                // Check if the found user is NOT the current user
+                const existingUser = usernameQuery.docs[0];
+                if (existingUser.id !== uid) {
+                    return NextResponse.json({ error: "Username is already taken" }, { status: 400 });
+                }
+            }
+        }
+
         const userRef = adminDb.collection("users").doc(uid);
 
         // Use set with merge to update or create
@@ -19,7 +34,7 @@ export async function POST(request: Request) {
             displayName: displayName || null,
             photoURL: photoURL || null,
             lastLogin: FieldValue.serverTimestamp(),
-            createdAt: FieldValue.serverTimestamp(), // This will be overwritten on merge if exists, which is fine or we can use update logic
+            createdAt: FieldValue.serverTimestamp(),
         }, { merge: true });
 
         return NextResponse.json({ success: true });

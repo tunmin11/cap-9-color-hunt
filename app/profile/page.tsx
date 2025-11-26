@@ -92,14 +92,17 @@ export default function ProfilePage() {
                 }),
             });
 
-            if (!syncRes.ok) throw new Error("Failed to update profile");
+            if (!syncRes.ok) {
+                const data = await syncRes.json();
+                throw new Error(data.error || "Failed to update profile");
+            }
 
             // 4. Refresh local user state without page reload
             await refreshUser();
 
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error updating profile:", err);
-            alert("Failed to update profile. Please try again.");
+            alert(err.message || "Failed to update profile. Please try again.");
         } finally {
             setSaving(false);
             setIsEditing(false);
@@ -108,14 +111,14 @@ export default function ProfilePage() {
 
     return (
         <AuthGuard>
-            <div className="min-h-screen bg-neutral-950 text-white p-4 pb-24">
+            <div className="min-h-screen bg-background text-foreground p-4 pb-24">
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
                     <div className="flex flex-col items-center mb-8 pt-8 relative">
                         {/* Logout Button */}
                         <button
                             onClick={logout}
-                            className="absolute top-0 right-0 text-neutral-500 hover:text-red-500 text-sm font-medium transition-colors"
+                            className="absolute top-0 right-0 text-[#A41F13]/60 hover:text-[#A41F13] text-sm font-bold transition-colors"
                         >
                             Logout
                         </button>
@@ -125,55 +128,55 @@ export default function ProfilePage() {
                                 <img
                                     src={user.photoURL}
                                     alt="Profile"
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-neutral-800 group-hover:border-white/20 transition-colors"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-[#A41F13] group-hover:scale-105 transition-transform"
                                 />
                             ) : (
-                                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-3xl font-bold border-4 border-neutral-800 group-hover:border-white/20 transition-colors">
+                                <div className="w-24 h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-3xl font-bold border-4 border-[#A41F13] group-hover:scale-105 transition-transform">
                                     {user?.email?.[0].toUpperCase()}
                                 </div>
                             )}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-xs font-bold">Edit</span>
+                            <div className="absolute inset-0 flex items-center justify-center bg-[#A41F13]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-xs font-bold text-white">Edit</span>
                             </div>
                         </div>
 
-                        <h1 className="text-2xl font-bold mt-4">{user?.displayName || user?.email?.split("@")[0]}</h1>
+                        <h1 className="text-2xl font-black mt-4 tracking-tight">{user?.displayName || user?.email?.split("@")[0]}</h1>
 
                         <button
                             onClick={handleEditClick}
-                            className="mt-2 text-sm text-neutral-400 hover:text-white transition-colors"
+                            className="mt-2 text-sm text-[#A41F13]/60 hover:text-[#A41F13] transition-colors font-medium"
                         >
                             Edit Profile
                         </button>
 
-                        <div className="flex gap-4 mt-6 text-sm text-neutral-400">
+                        <div className="flex gap-4 mt-6 text-sm text-[#A41F13]/80">
                             <div className="text-center">
-                                <span className="block text-white font-bold text-lg">{packs.length}</span>
+                                <span className="block text-[#A41F13] font-black text-xl">{packs.length}</span>
                                 Total Hunts
                             </div>
                             <div className="text-center">
-                                <span className="block text-white font-bold text-lg">{completedPacks.length}</span>
+                                <span className="block text-[#A41F13] font-black text-xl">{completedPacks.length}</span>
                                 Completed
                             </div>
                         </div>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-b border-neutral-800 mb-8">
+                    <div className="flex border-b-2 border-[#A41F13]/10 mb-8">
                         <button
                             onClick={() => setActiveTab("inprogress")}
-                            className={`flex-1 pb-4 text-sm font-medium transition-colors ${activeTab === "inprogress"
-                                ? "text-white border-b-2 border-white"
-                                : "text-neutral-500 hover:text-neutral-300"
+                            className={`flex-1 pb-4 text-sm font-bold transition-colors ${activeTab === "inprogress"
+                                ? "text-[#A41F13] border-b-4 border-[#A41F13] -mb-[2px]"
+                                : "text-[#A41F13]/40 hover:text-[#A41F13]/60"
                                 }`}
                         >
                             In Progress ({inProgressPacks.length})
                         </button>
                         <button
                             onClick={() => setActiveTab("completed")}
-                            className={`flex-1 pb-4 text-sm font-medium transition-colors ${activeTab === "completed"
-                                ? "text-white border-b-2 border-white"
-                                : "text-neutral-500 hover:text-neutral-300"
+                            className={`flex-1 pb-4 text-sm font-bold transition-colors ${activeTab === "completed"
+                                ? "text-[#A41F13] border-b-4 border-[#A41F13] -mb-[2px]"
+                                : "text-[#A41F13]/40 hover:text-[#A41F13]/60"
                                 }`}
                         >
                             Completed ({completedPacks.length})
@@ -183,46 +186,46 @@ export default function ProfilePage() {
                     {/* Grid */}
                     {error ? (
                         <div className="text-center py-20">
-                            <p className="text-red-400 mb-2">Something went wrong.</p>
-                            <p className="text-neutral-500 text-sm">{error}</p>
+                            <p className="text-[#A41F13] mb-2 font-bold">Something went wrong.</p>
+                            <p className="text-[#A41F13]/60 text-sm">{error}</p>
                             {error.includes("index") && (
-                                <p className="text-neutral-600 text-xs mt-4 max-w-md mx-auto">
+                                <p className="text-[#A41F13]/40 text-xs mt-4 max-w-md mx-auto">
                                     (Developer Note: Check the server console for the Firestore Index creation link)
                                 </p>
                             )}
                         </div>
                     ) : loading ? (
                         <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-[#A41F13]"></div>
                         </div>
                     ) : displayedPacks.length === 0 ? (
-                        <div className="text-center text-neutral-500 py-20">
+                        <div className="text-center text-[#A41F13]/50 py-20">
                             {activeTab === "inprogress" ? (
                                 <div>
-                                    <p className="mb-4">No active hunts.</p>
-                                    <Link href="/create" className="text-purple-400 hover:text-purple-300 font-bold">
+                                    <p className="mb-4 font-medium">No active hunts.</p>
+                                    <Link href="/create" className="text-[#A41F13] hover:underline font-bold">
                                         Start a new one →
                                     </Link>
                                 </div>
                             ) : (
-                                <p>No completed hunts yet. Keep going!</p>
+                                <p className="font-medium">No completed hunts yet. Keep going!</p>
                             )}
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4">
                             {displayedPacks.map((pack) => (
                                 <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
-                                    <div className="bg-neutral-900 rounded-2xl overflow-hidden border border-neutral-800 transition-transform group-hover:scale-[1.02]">
-                                        <div className="p-3 flex items-center justify-between border-b border-neutral-800">
+                                    <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">
+                                        <div className="p-3 flex items-center justify-between border-b border-[#A41F13]/10 bg-[#A41F13]/5">
                                             <div className="flex items-center gap-2">
                                                 <div
-                                                    className="w-4 h-4 rounded-full border border-white/10"
+                                                    className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
                                                     style={{ backgroundColor: pack.targetColor.hex }}
                                                 />
-                                                <span className="font-bold text-sm">{pack.targetColor.name}</span>
+                                                <span className="font-bold text-sm text-[#A41F13]">{pack.targetColor.name}</span>
                                             </div>
                                             {pack.status === "complete" && (
-                                                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
+                                                <span className="text-xs bg-[#A41F13] text-white px-2 py-0.5 rounded-full font-bold">
                                                     Done
                                                 </span>
                                             )}
@@ -232,7 +235,7 @@ export default function ProfilePage() {
                                                 {Array.from({ length: 9 }).map((_, i) => {
                                                     const img = pack.images?.[i];
                                                     return (
-                                                        <div key={i} className="relative bg-neutral-800">
+                                                        <div key={i} className="relative bg-[#A41F13]/5">
                                                             {img?.imageUrl ? (
                                                                 <img
                                                                     src={img.imageUrl}
@@ -241,7 +244,7 @@ export default function ProfilePage() {
                                                                 />
                                                             ) : (
                                                                 <div
-                                                                    className="w-full h-full opacity-10"
+                                                                    className="w-full h-full opacity-20"
                                                                     style={{ backgroundColor: pack.targetColor.hex }}
                                                                 />
                                                             )}
@@ -259,29 +262,33 @@ export default function ProfilePage() {
 
                 {/* Edit Profile Modal */}
                 {isEditing && (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-md">
-                            <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
+                    <div className="fixed inset-0 bg-[#A41F13]/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-[#E0DBD8] border-2 border-[#A41F13] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                            <h2 className="text-xl font-black text-[#A41F13] mb-4">Edit Profile</h2>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm text-neutral-400 mb-1">Display Name</label>
+                                    <label className="block text-sm text-[#A41F13]/60 mb-1 font-bold">Username (No spaces)</label>
                                     <input
                                         type="text"
                                         value={newName}
-                                        onChange={(e) => setNewName(e.target.value)}
-                                        className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/50"
-                                        placeholder="Enter your name"
+                                        onChange={(e) => {
+                                            // Enforce no spaces
+                                            const val = e.target.value.replace(/\s/g, "");
+                                            setNewName(val);
+                                        }}
+                                        className="w-full bg-white border border-[#A41F13]/20 rounded-lg px-4 py-2 text-[#A41F13] focus:outline-none focus:border-[#A41F13] font-medium"
+                                        placeholder="username"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm text-neutral-400 mb-1">Profile Picture</label>
+                                    <label className="block text-sm text-[#A41F13]/60 mb-1 font-bold">Profile Picture</label>
                                     <input
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => setNewAvatar(e.target.files?.[0] || null)}
-                                        className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 text-white text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-neutral-700 file:text-white hover:file:bg-neutral-600"
+                                        className="w-full bg-white border border-[#A41F13]/20 rounded-lg px-4 py-2 text-[#A41F13] text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-[#A41F13] file:text-white hover:file:bg-[#A41F13]/80 font-medium"
                                     />
                                 </div>
                             </div>
@@ -289,15 +296,15 @@ export default function ProfilePage() {
                             <div className="flex gap-3 mt-8">
                                 <button
                                     onClick={() => setIsEditing(false)}
-                                    className="flex-1 py-3 rounded-xl font-bold text-neutral-400 hover:bg-neutral-800 transition-colors"
+                                    className="flex-1 py-3 rounded-xl font-bold text-[#A41F13]/60 hover:bg-[#A41F13]/10 transition-colors"
                                     disabled={saving}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSaveProfile}
-                                    className="flex-1 bg-white text-black py-3 rounded-xl font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50"
-                                    disabled={saving}
+                                    className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-3 rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50 shadow-lg"
+                                    disabled={saving || !newName}
                                 >
                                     {saving ? "Saving..." : "Save Changes"}
                                 </button>
