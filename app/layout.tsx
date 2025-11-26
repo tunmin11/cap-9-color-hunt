@@ -9,9 +9,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Color Hunt",
   description: "A 9-cell color photography challenge",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 import { NavBar } from "../components/NavBar";
+import PageWrapper from "../components/PageWrapper";
 
 export default function RootLayout({
   children,
@@ -24,7 +28,9 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-neutral-950 text-white`}
       >
         <AuthProvider>
-          {children}
+          <PageWrapper>
+            {children}
+          </PageWrapper>
           <NavBar />
         </AuthProvider>
       </body>

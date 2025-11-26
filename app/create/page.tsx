@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
+import { Logo } from "@/components/Logo";
+import { Skeleton } from "@/components/Skeleton";
 
 interface Color {
     id: string;
@@ -73,7 +75,8 @@ export default function CreatePackPage() {
                 </div>
 
                 <div className="max-w-4xl mx-auto w-full z-10 flex-1 flex flex-col justify-center">
-                    <div className="mb-12 text-center">
+                    <div className="mb-12 text-center flex flex-col items-center">
+                        <Logo className="w-16 h-16 mb-6" />
                         <h1 className="text-5xl md:text-6xl font-black tracking-tighter mb-4">
                             START A <span className="text-[#A41F13]">HUNT</span>
                         </h1>
@@ -83,16 +86,19 @@ export default function CreatePackPage() {
                     </div>
 
                     {loading ? (
-                        <div className="flex items-center justify-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#A41F13]"></div>
+                        <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6 mb-12">
+                            {Array.from({ length: 15 }).map((_, i) => (
+                                <Skeleton key={i} className="aspect-square rounded-2xl" />
+                            ))}
                         </div>
                     ) : (
                         <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6 mb-12">
-                            {colors.map((color) => (
+                            {colors.map((color, index) => (
                                 <button
                                     key={color.id}
                                     onClick={() => setSelectedColor(color)}
-                                    className={`relative group rounded-2xl overflow-hidden aspect-square transition-all duration-300 shadow-xl ${selectedColor?.id === color.id
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                    className={`relative group rounded-2xl overflow-hidden aspect-square transition-all duration-300 shadow-xl animate-slide-up opacity-0 ${selectedColor?.id === color.id
                                         ? "ring-4 ring-[#A41F13] scale-105 z-10"
                                         : "hover:scale-105 opacity-90 hover:opacity-100 hover:ring-2 hover:ring-black/10"
                                         }`}
@@ -125,7 +131,7 @@ export default function CreatePackPage() {
                         <button
                             onClick={handleCreatePack}
                             disabled={!selectedColor || creating}
-                            className={`px-12 py-5 rounded-full font-black text-xl tracking-wide transition-all shadow-2xl flex items-center gap-3 ${selectedColor
+                            className={`px-12 py-5 rounded-full font-black text-xl tracking-wide transition-all shadow-2xl flex items-center gap-3 active:scale-95 ${selectedColor
                                 ? "bg-[#A41F13] text-[#E0DBD8] hover:scale-105 hover:shadow-[#A41F13]/50"
                                 : "bg-neutral-800/20 text-neutral-500 cursor-not-allowed"
                                 }`}

@@ -202,7 +202,7 @@ export default function PackPage() {
                         </button>
                     </div>
 
-                    <div className="relative">
+                    <div className="relative w-full max-w-md">
                         <PackGrid
                             packId={pack.id}
                             userId={user?.uid || ""}

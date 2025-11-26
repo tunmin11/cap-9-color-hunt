@@ -59,7 +59,7 @@ export function NavBar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="flex items-center justify-center w-12 h-12 mx-2 bg-white text-black rounded-full shadow-lg shadow-white/10 transition-transform duration-200 hover:scale-110 active:scale-95"
+                                className="flex items-center justify-center w-12 h-12 mx-2 bg-white text-black rounded-full shadow-lg shadow-white/10 transition-all duration-200 hover:scale-110 active:scale-90 hover:rotate-3"
                                 aria-label={item.name}
                             >
                                 {item.icon}
@@ -73,17 +73,17 @@ export function NavBar() {
                             href={item.href}
                             className={`
                 relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 group
-                ${active ? "text-white bg-white/10" : "text-neutral-400 hover:text-white hover:bg-white/5"}
+                ${active ? "text-white bg-white/10 scale-110" : "text-neutral-400 hover:text-white hover:bg-white/5 hover:scale-110"}
               `}
                             aria-label={item.name}
                         >
                             {item.icon}
                             {active && (
-                                <span className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                                <span className="absolute -bottom-1 w-1 h-1 bg-white rounded-full animate-fade-in" />
                             )}
 
                             {/* Tooltip */}
-                            <span className="absolute -top-10 px-2 py-1 text-xs font-medium text-white bg-neutral-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                            <span className="absolute -top-10 px-2 py-1 text-xs font-medium text-white bg-neutral-800 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 pointer-events-none whitespace-nowrap">
                                 {item.name}
                             </span>
                         </Link>

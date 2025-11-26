@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
+import { Logo } from "@/components/Logo";
+
 export default function Home() {
   const { user, login } = useAuth();
 
@@ -10,7 +12,6 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
 
       {/* Background Texture/Gradient */}
-
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-[#A41F13] rounded-full blur-[150px] opacity-20" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-[#A41F13] rounded-full blur-[150px] opacity-20" />
@@ -20,9 +21,7 @@ export default function Home() {
       <main className="z-10 flex flex-col items-center text-center max-w-2xl w-full">
         {/* Logo / Badge */}
         <div className="mb-8 animate-fade-in">
-          <div className="bg-[#A41F13] text-[#E0DBD8] px-4 py-1 rounded-full text-sm font-bold tracking-widest uppercase shadow-lg">
-            CAP 9
-          </div>
+          <Logo className="w-24 h-24 md:w-32 md:h-32" />
         </div>
 
         <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-none">
@@ -63,7 +62,7 @@ export default function Home() {
             href="/feed"
             className="flex-1 bg-white/50 backdrop-blur-sm text-[#A41F13] border-2 border-[#A41F13] py-4 rounded-xl font-bold text-lg hover:bg-[#A41F13] hover:text-[#E0DBD8] transition-all flex items-center justify-center"
           >
-            Global Feed
+            Community Feed
           </Link>
         </div>
       </main>

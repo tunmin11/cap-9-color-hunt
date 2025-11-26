@@ -5,6 +5,8 @@ import Link from "next/link";
 import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
+import { Logo } from "@/components/Logo";
+import { PackGridSkeleton } from "@/components/Skeleton";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -115,6 +117,11 @@ export default function ProfilePage() {
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
                     <div className="flex flex-col items-center mb-8 pt-8 relative">
+                        {/* Logo */}
+                        <div className="absolute top-0 left-0">
+                            <Logo className="w-8 h-8 opacity-50" />
+                        </div>
+
                         {/* Logout Button */}
                         <button
                             onClick={logout}
@@ -195,9 +202,7 @@ export default function ProfilePage() {
                             )}
                         </div>
                     ) : loading ? (
-                        <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-[#A41F13]"></div>
-                        </div>
+                        <PackGridSkeleton />
                     ) : displayedPacks.length === 0 ? (
                         <div className="text-center text-[#A41F13]/50 py-20">
                             {activeTab === "inprogress" ? (
@@ -296,14 +301,14 @@ export default function ProfilePage() {
                             <div className="flex gap-3 mt-8">
                                 <button
                                     onClick={() => setIsEditing(false)}
-                                    className="flex-1 py-3 rounded-xl font-bold text-[#A41F13]/60 hover:bg-[#A41F13]/10 transition-colors"
+                                    className="flex-1 py-3 rounded-xl font-bold text-[#A41F13]/60 hover:bg-[#A41F13]/10 transition-colors active:scale-95"
                                     disabled={saving}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSaveProfile}
-                                    className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-3 rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50 shadow-lg"
+                                    className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-3 rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50 shadow-lg active:scale-95"
                                     disabled={saving || !newName}
                                 >
                                     {saving ? "Saving..." : "Save Changes"}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import AuthGuard from "@/components/AuthGuard";
+
 
 export default function PublicProfilePage() {
     const params = useParams();
@@ -60,95 +60,93 @@ export default function PublicProfilePage() {
     const completedPacks = packs.filter(p => p.status === "complete");
 
     return (
-        <AuthGuard>
-            <div className="min-h-screen bg-neutral-950 text-white p-4 pb-24">
-                <div className="max-w-2xl mx-auto">
-                    {loading ? (
-                        <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-20 text-red-400">{error}</div>
-                    ) : (
-                        <>
-                            {/* Header */}
-                            <div className="flex flex-col items-center mb-12 pt-8">
-                                {profileUser?.photoURL ? (
-                                    <img
-                                        src={profileUser.photoURL}
-                                        alt="Profile"
-                                        className="w-24 h-24 rounded-full object-cover border-4 border-neutral-800"
-                                    />
-                                ) : (
-                                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-3xl font-bold border-4 border-neutral-800">
-                                        {profileUser?.displayName?.[0]?.toUpperCase() || "?"}
-                                    </div>
-                                )}
-
-                                <h1 className="text-2xl font-bold mt-4">{profileUser?.displayName || "Anonymous"}</h1>
-
-                                <div className="flex gap-4 mt-6 text-sm text-neutral-400">
-                                    <div className="text-center">
-                                        <span className="block text-white font-bold text-lg">{packs.length}</span>
-                                        Total Hunts
-                                    </div>
-                                    <div className="text-center">
-                                        <span className="block text-white font-bold text-lg">{completedPacks.length}</span>
-                                        Completed
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2 className="text-xl font-bold mb-6">Completed Hunts</h2>
-
-                            {completedPacks.length === 0 ? (
-                                <p className="text-neutral-500 text-center">No completed hunts yet.</p>
+        <div className="min-h-screen bg-[#E0DBD8] text-[#A41F13] p-4 pb-24">
+            <div className="max-w-2xl mx-auto">
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#A41F13]"></div>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-20 text-[#A41F13]/60 font-medium">{error}</div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="flex flex-col items-center mb-12 pt-8">
+                            {profileUser?.photoURL ? (
+                                <img
+                                    src={profileUser.photoURL}
+                                    alt="Profile"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-[#A41F13]"
+                                />
                             ) : (
-                                <div className="grid grid-cols-2 gap-4">
-                                    {completedPacks.map((pack) => (
-                                        <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
-                                            <div className="bg-neutral-900 rounded-2xl overflow-hidden border border-neutral-800 transition-transform group-hover:scale-[1.02]">
-                                                <div className="p-3 flex items-center justify-between border-b border-neutral-800">
-                                                    <div className="flex items-center gap-2">
-                                                        <div
-                                                            className="w-4 h-4 rounded-full border border-white/10"
-                                                            style={{ backgroundColor: pack.targetColor.hex }}
-                                                        />
-                                                        <span className="font-bold text-sm">{pack.targetColor.name}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="aspect-square p-2">
-                                                    <div className="grid grid-cols-3 gap-0.5 w-full h-full rounded-lg overflow-hidden">
-                                                        {Array.from({ length: 9 }).map((_, i) => {
-                                                            const img = pack.images?.[i];
-                                                            return (
-                                                                <div key={i} className="relative bg-neutral-800">
-                                                                    {img?.imageUrl ? (
-                                                                        <img
-                                                                            src={img.imageUrl}
-                                                                            alt=""
-                                                                            className="w-full h-full object-cover"
-                                                                        />
-                                                                    ) : (
-                                                                        <div
-                                                                            className="w-full h-full opacity-10"
-                                                                            style={{ backgroundColor: pack.targetColor.hex }}
-                                                                        />
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))}
+                                <div className="w-24 h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-3xl font-bold border-4 border-[#A41F13]">
+                                    {profileUser?.displayName?.[0]?.toUpperCase() || "?"}
                                 </div>
                             )}
-                        </>
-                    )}
-                </div>
+
+                            <h1 className="text-2xl font-black mt-4 tracking-tight text-[#A41F13]">{profileUser?.displayName || "Anonymous"}</h1>
+
+                            <div className="flex gap-4 mt-6 text-sm text-[#A41F13]/80">
+                                <div className="text-center">
+                                    <span className="block text-[#A41F13] font-black text-xl">{packs.length}</span>
+                                    Total Hunts
+                                </div>
+                                <div className="text-center">
+                                    <span className="block text-[#A41F13] font-black text-xl">{completedPacks.length}</span>
+                                    Completed
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 className="text-xl font-black mb-6 text-[#A41F13]">Completed Hunts</h2>
+
+                        {completedPacks.length === 0 ? (
+                            <p className="text-[#A41F13]/50 text-center font-medium">No completed hunts yet.</p>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4">
+                                {completedPacks.map((pack) => (
+                                    <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
+                                        <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">
+                                            <div className="p-3 flex items-center justify-between border-b border-[#A41F13]/10 bg-[#A41F13]/5">
+                                                <div className="flex items-center gap-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
+                                                        style={{ backgroundColor: pack.targetColor.hex }}
+                                                    />
+                                                    <span className="font-bold text-sm text-[#A41F13]">{pack.targetColor.name}</span>
+                                                </div>
+                                            </div>
+                                            <div className="aspect-square p-2">
+                                                <div className="grid grid-cols-3 gap-0.5 w-full h-full rounded-lg overflow-hidden">
+                                                    {Array.from({ length: 9 }).map((_, i) => {
+                                                        const img = pack.images?.[i];
+                                                        return (
+                                                            <div key={i} className="relative bg-[#A41F13]/5">
+                                                                {img?.imageUrl ? (
+                                                                    <img
+                                                                        src={img.imageUrl}
+                                                                        alt=""
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <div
+                                                                        className="w-full h-full opacity-20"
+                                                                        style={{ backgroundColor: pack.targetColor.hex }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
-        </AuthGuard>
+        </div>
     );
 }

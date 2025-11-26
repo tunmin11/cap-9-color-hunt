@@ -15,7 +15,7 @@ export default function PackGrid({ packId, userId, images, targetColorHex, targe
     const cells = Array.from({ length: 9 }, (_, i) => i);
 
     return (
-        <div className="w-full max-w-md mx-auto aspect-square bg-neutral-900 rounded-2xl p-3 md:p-4 shadow-2xl border border-neutral-800">
+        <div className="w-full max-w-md mx-auto aspect-square bg-neutral-900 rounded-2xl p-3 md:p-4 shadow-2xl border border-neutral-800 min-h-[300px]">
             <div className="grid grid-cols-3 gap-2 md:gap-3 w-full h-full">
                 {cells.map((position) => (
                     <UploadCell
