@@ -7,7 +7,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Color Hunt",
+  title: "capnine.club",
   description: "A 9-cell color photography challenge",
   icons: {
     icon: "/logo.svg",

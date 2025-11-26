@@ -7,11 +7,16 @@ import AuthGuard from "@/components/AuthGuard";
 import PackGrid from "@/components/PackGrid";
 import Link from "next/link";
 
+import SharePreviewModal from "@/components/SharePreviewModal";
+
 export default function PackPage() {
     const { packId } = useParams();
     const { user } = useAuth();
     const [pack, setPack] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [shareBlob, setShareBlob] = useState<Blob | null>(null);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [generating, setGenerating] = useState(false);
 
     useEffect(() => {
         if (!packId) return;
@@ -30,10 +35,8 @@ export default function PackPage() {
             }
         };
 
-        // Initial fetch
         fetchPack();
 
-        // Poll every 2 seconds for updates, but stop if complete
         const interval = setInterval(() => {
             if (pack?.status !== 'complete') {
                 fetchPack();
@@ -43,142 +46,205 @@ export default function PackPage() {
         return () => clearInterval(interval);
     }, [packId, pack?.status]);
 
+    // Pre-generate image when pack is loaded and complete
+    useEffect(() => {
+        if (pack?.status === 'complete' && !shareBlob && !generating) {
+            generateGridImage();
+        }
+    }, [pack, shareBlob, generating]);
+
+    const generateGridImage = async () => {
+        if (!pack || !pack.images) return null;
+        setGenerating(true);
+
+        try {
+            const canvas = document.createElement('canvas');
+            const width = 1080;
+            const height = 1920; // Story format
+            const padding = 80;
+            const gap = 20;
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+
+            // 1. Background
+            ctx.fillStyle = '#E0DBD8';
+            ctx.fillRect(0, 0, width, height);
+
+            // 2. Background Texture (Subtle Circles)
+            ctx.fillStyle = '#A41F13';
+            ctx.globalAlpha = 0.03;
+            ctx.beginPath();
+            ctx.arc(0, 0, 600, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(width, height, 800, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+
+            // 3. Header: Logo
+            try {
+                // Load logo from public folder
+                const logoImg = await loadImage('/logo.svg');
+                const logoWidth = 100;
+                const logoHeight = logoWidth * (logoImg.height / logoImg.width);
+                ctx.drawImage(logoImg, (width - logoWidth) / 2, 120, logoWidth, logoHeight);
+            } catch (e) {
+                // Fallback text if logo fails
+                ctx.fillStyle = '#A41F13';
+                ctx.font = '900 100px "Inter", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('CAP 9', width / 2, 180);
+            }
+
+            // 4. The Grid
+            const gridSize = width - (padding * 2);
+            const cellSize = (gridSize - (gap * 2)) / 3;
+            // Center grid vertically, but slightly higher to leave room for footer
+            const gridStartY = (height - gridSize) / 2 - 50;
+
+            // Draw Grid Background/Border
+            ctx.fillStyle = '#ffffff';
+            ctx.roundRect(padding - 20, gridStartY - 20, gridSize + 40, gridSize + 40, 30);
+            ctx.fill();
+
+            // Load all images
+            for (let i = 0; i < 9; i++) {
+                const row = Math.floor(i / 3);
+                const col = i % 3;
+                const x = padding + col * (cellSize + gap);
+                const y = gridStartY + row * (cellSize + gap);
+
+                const imgData = pack.images[i];
+
+                // Placeholder
+                ctx.fillStyle = pack.targetColor.hex;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(x, y, cellSize, cellSize);
+                ctx.globalAlpha = 1.0;
+
+                if (imgData?.imageUrl) {
+                    try {
+                        const img = await loadImage(imgData.imageUrl);
+
+                        // Draw image (object-cover)
+                        const scale = Math.max(cellSize / img.width, cellSize / img.height);
+                        const w = img.width * scale;
+                        const h = img.height * scale;
+                        const ox = (cellSize - w) / 2;
+                        const oy = (cellSize - h) / 2;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, cellSize, cellSize, 10); // Rounded corners for cells
+                        ctx.clip();
+                        ctx.drawImage(img, x + ox, y + oy, w, h);
+                        ctx.restore();
+                    } catch (e) {
+                        console.error("Error loading image for canvas", e);
+                    }
+                }
+            }
+
+            // 5. Footer Info
+            const footerY = gridStartY + gridSize + 80;
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 32px "Inter", sans-serif';
+
+            // Username . [Dot] Color Name . CTA
+            const username = `@${pack.user?.displayName || "Anonymous"}`;
+            const colorName = pack.targetColor.name.toLowerCase();
+            const cta = "join the hunt @ capnine.club";
+
+            // Calculate widths to position the dot
+            const separator = "  •  ";
+            const part1 = `${username}${separator}`;
+            const part2 = ` ${colorName}${separator}${cta}`;
+
+            const fullTextWidth = ctx.measureText(part1 + "   " + part2).width; // Add space for dot
+            const startX = (width - fullTextWidth) / 2;
+
+            // Draw Part 1 (Username + Sep)
+            ctx.fillStyle = '#A41F13';
+            ctx.textAlign = 'left';
+            ctx.fillText(part1, startX, footerY);
+
+            // Draw Dot
+            const part1Width = ctx.measureText(part1).width;
+            const dotX = startX + part1Width + 10; // Add a little padding
+            const dotY = footerY;
+            const dotRadius = 12;
+
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+            ctx.fillStyle = pack.targetColor.hex;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw Part 2 (Color Name + Sep + CTA)
+            ctx.fillStyle = '#A41F13';
+            ctx.fillText("   " + part2, startX + part1Width, footerY); // Add space for dot
+
+
+            canvas.toBlob((blob) => {
+                setShareBlob(blob);
+                setGenerating(false);
+            }, 'image/png');
+
+        } catch (e) {
+            console.error("Generation failed", e);
+            setGenerating(false);
+        }
+    };
+
+    const loadImage = (url: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error(`Failed to load image ${url}`));
+
+            // Use proxy only for external URLs to avoid CORS on canvas export
+            if (url.startsWith('http')) {
+                img.src = `/api/proxy-image?url=${encodeURIComponent(url)}`;
+            } else {
+                img.src = url;
+            }
+        });
+    };
+
+    const handleShareClick = async () => {
+        if (shareBlob) {
+            setShowShareModal(true);
+        } else {
+            // Force generate if not ready
+            await generateGridImage();
+            setShowShareModal(true);
+        }
+    };
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#A41F13]"></div>
             </div>
         );
     }
 
     if (!pack) {
         return (
-            <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
+            <div className="min-h-screen bg-background flex items-center justify-center text-[#A41F13]">
                 Pack not found
             </div>
         );
     }
-
-    const generateGridImage = async () => {
-        if (!pack || !pack.images) return null;
-
-        const canvas = document.createElement('canvas');
-        const size = 1080; // Instagram story/post size
-        const padding = 40;
-        const gap = 20;
-        const cellInfoHeight = 0; // No text below cells for cleaner look
-
-        canvas.width = size;
-        canvas.height = size + 180; // Extra space for branding
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return null;
-
-        // Background
-        ctx.fillStyle = '#000000'; // Pure black for high contrast
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw "CAP 9" Branding
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 80px "Inter", sans-serif'; // Extra bold
-        ctx.textAlign = 'center';
-        ctx.fillText('CAP 9', size / 2, size + 80);
-
-        // Draw Color Name & Status
-        ctx.fillStyle = pack.targetColor.hex;
-        ctx.font = 'bold 40px "Inter", sans-serif';
-        ctx.fillText(`${pack.targetColor.name.toUpperCase()} // VERIFIED`, size / 2, size + 140);
-
-        const cellSize = (size - (padding * 2) - (gap * 2)) / 3;
-
-        // Load all images
-        const loadImage = (url: string): Promise<HTMLImageElement> => {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error(`Failed to load image ${url}`));
-                // Use proxy to avoid CORS issues
-                img.src = `/api/proxy-image?url=${encodeURIComponent(url)}`;
-            });
-        };
-
-        // Draw Grid
-        let loadedCount = 0;
-        for (let i = 0; i < 9; i++) {
-            const row = Math.floor(i / 3);
-            const col = i % 3;
-            const x = padding + col * (cellSize + gap);
-            const y = padding + row * (cellSize + gap);
-
-            const imgData = pack.images[i];
-
-            // Draw placeholder background
-            ctx.fillStyle = pack.targetColor.hex;
-            ctx.globalAlpha = 0.2;
-            ctx.fillRect(x, y, cellSize, cellSize);
-            ctx.globalAlpha = 1.0;
-
-            if (imgData?.imageUrl) {
-                try {
-                    // We need to fetch as blob first to avoid some CORS issues with direct canvas usage sometimes
-                    // But try direct load first with crossOrigin
-                    const img = await loadImage(imgData.imageUrl);
-
-                    // Draw image covering the square (object-cover)
-                    const scale = Math.max(cellSize / img.width, cellSize / img.height);
-                    const w = img.width * scale;
-                    const h = img.height * scale;
-                    const ox = (cellSize - w) / 2;
-                    const oy = (cellSize - h) / 2;
-
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(x, y, cellSize, cellSize);
-                    ctx.clip();
-                    ctx.drawImage(img, x + ox, y + oy, w, h);
-                    ctx.restore();
-                } catch (e) {
-                    console.error("Error loading image for canvas", e);
-                }
-            }
-        }
-
-        return new Promise<Blob | null>(resolve => {
-            canvas.toBlob(resolve, 'image/png');
-        });
-    };
-
-    const handleShare = async () => {
-        setLoading(true); // Re-use loading state or add a sharing state
-        try {
-            const blob = await generateGridImage();
-            if (!blob) throw new Error("Failed to generate image");
-
-            const file = new File([blob], `colour-hunt-${pack.targetColor.name}.png`, { type: 'image/png' });
-
-            if (navigator.share && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: 'My Colour Hunt',
-                    text: `I found all 9 ${pack.targetColor.name} items! #colourhunt`,
-                });
-            } else {
-                // Fallback: Download
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `colour-hunt-${pack.targetColor.name}.png`;
-                a.click();
-                URL.revokeObjectURL(url);
-                alert("Image downloaded! You can now post it to Instagram.");
-            }
-        } catch (error) {
-            console.error("Sharing failed:", error);
-            alert("Could not share image. Try taking a screenshot instead!");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <AuthGuard>
@@ -195,7 +261,7 @@ export default function PackPage() {
                             />
                             <span className="font-black text-xl text-[#A41F13]">{pack.targetColor.name} Hunt</span>
                         </div>
-                        <button onClick={handleShare} className="text-[#A41F13]/60 hover:text-[#A41F13] transition-colors">
+                        <button onClick={handleShareClick} className="text-[#A41F13]/60 hover:text-[#A41F13] transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                             </svg>
@@ -228,10 +294,20 @@ export default function PackPage() {
                                 <p className="text-lg text-[#A41F13] font-bold">Congratulations!</p>
                                 <p>You've found all 9 {pack.targetColor.name} items.</p>
                                 <button
-                                    onClick={handleShare}
-                                    className="bg-[#A41F13] text-[#E0DBD8] px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
+                                    onClick={handleShareClick}
+                                    className="bg-[#A41F13] text-[#E0DBD8] px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg flex items-center justify-center gap-2 mx-auto"
+                                    disabled={generating}
                                 >
-                                    Share Result
+                                    {generating ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#E0DBD8]"></div>
+                                            Preparing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Share Result
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         ) : (
@@ -239,6 +315,13 @@ export default function PackPage() {
                         )}
                     </div>
                 </div>
+
+                <SharePreviewModal
+                    isOpen={showShareModal}
+                    onClose={() => setShowShareModal(false)}
+                    imageBlob={shareBlob}
+                    packColorName={pack.targetColor.name}
+                />
             </div>
         </AuthGuard>
     );
