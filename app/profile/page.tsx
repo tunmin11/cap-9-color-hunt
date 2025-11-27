@@ -113,19 +113,19 @@ export default function ProfilePage() {
 
     return (
         <AuthGuard>
-            <div className="min-h-screen bg-background text-foreground p-4 pb-24">
+            <div className="min-h-screen bg-background text-foreground p-3 md:p-4 pb-24">
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
-                    <div className="flex flex-col items-center mb-8 pt-8 relative">
+                    <div className="flex flex-col items-center mb-6 md:mb-8 pt-6 md:pt-8 relative">
                         {/* Logo */}
                         <div className="absolute top-0 left-0">
-                            <Logo className="w-8 h-8 opacity-50" />
+                            <Logo className="w-6 h-6 md:w-8 md:h-8 opacity-50" />
                         </div>
 
                         {/* Logout Button */}
                         <button
                             onClick={logout}
-                            className="absolute top-0 right-0 text-[#A41F13]/60 hover:text-[#A41F13] text-sm font-bold transition-colors"
+                            className="absolute top-0 right-0 text-[#A41F13]/60 hover:text-[#A41F13] text-xs md:text-sm font-bold transition-colors"
                         >
                             Logout
                         </button>
@@ -135,10 +135,10 @@ export default function ProfilePage() {
                                 <img
                                     src={user.photoURL}
                                     alt="Profile"
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-[#A41F13] group-hover:scale-105 transition-transform"
+                                    className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-[#A41F13] group-hover:scale-105 transition-transform"
                                 />
                             ) : (
-                                <div className="w-24 h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-3xl font-bold border-4 border-[#A41F13] group-hover:scale-105 transition-transform">
+                                <div className="w-20 h-20 md:w-24 md:h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold border-4 border-[#A41F13] group-hover:scale-105 transition-transform">
                                     {user?.email?.[0].toUpperCase()}
                                 </div>
                             )}
@@ -147,22 +147,22 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        <h1 className="text-2xl font-black mt-4 tracking-tight">{user?.displayName || user?.email?.split("@")[0]}</h1>
+                        <h1 className="text-xl md:text-2xl font-black mt-4 tracking-tight text-center break-all px-4">{user?.displayName || user?.email?.split("@")[0]}</h1>
 
                         <button
                             onClick={handleEditClick}
-                            className="mt-2 text-sm text-[#A41F13]/60 hover:text-[#A41F13] transition-colors font-medium"
+                            className="mt-2 text-xs md:text-sm text-[#A41F13]/60 hover:text-[#A41F13] transition-colors font-medium"
                         >
                             Edit Profile
                         </button>
 
                         <div className="flex gap-4 mt-6 text-sm text-[#A41F13]/80">
                             <div className="text-center">
-                                <span className="block text-[#A41F13] font-black text-xl">{packs.length}</span>
+                                <span className="block text-[#A41F13] font-black text-lg md:text-xl">{packs.length}</span>
                                 Total Hunts
                             </div>
                             <div className="text-center">
-                                <span className="block text-[#A41F13] font-black text-xl">{completedPacks.length}</span>
+                                <span className="block text-[#A41F13] font-black text-lg md:text-xl">{completedPacks.length}</span>
                                 Completed
                             </div>
                         </div>

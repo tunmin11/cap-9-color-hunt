@@ -8,7 +8,7 @@ export default function HomeClient() {
     const { user, login } = useAuth();
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
+        <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 pb-24 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
 
             {/* Background Texture/Gradient */}
             <div className="absolute inset-0 z-0 pointer-events-none">
@@ -19,23 +19,23 @@ export default function HomeClient() {
 
             <main className="z-10 flex flex-col items-center text-center max-w-2xl w-full">
                 {/* Logo / Badge */}
-                <div className="mb-8 animate-fade-in">
-                    <Logo className="w-24 h-24 md:w-32 md:h-32" />
+                <div className="mb-4 md:mb-6 animate-fade-in">
+                    <Logo className="w-16 h-16 md:w-24 md:h-24" />
                 </div>
 
-                <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-none">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-3 md:mb-5 leading-none">
                     COLOUR<br />HUNT
                 </h1>
 
-                <p className="text-xl md:text-2xl mb-12 font-medium opacity-80 max-w-lg mx-auto">
+                <p className="text-base md:text-xl mb-6 md:mb-8 font-medium opacity-80 max-w-lg mx-auto px-4">
                     The ultimate real-world scavenger hunt. Find colors, snap photos, complete the grid.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md px-4">
                     {user ? (
                         <Link
                             href="/profile"
-                            className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2"
+                            className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-3 rounded-xl font-bold text-base hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2"
                         >
                             <span>Continue Hunt</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -45,7 +45,7 @@ export default function HomeClient() {
                     ) : (
                         <button
                             onClick={login}
-                            className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2"
+                            className="flex-1 bg-[#A41F13] text-[#E0DBD8] py-3 rounded-xl font-bold text-base hover:scale-105 transition-transform shadow-xl flex items-center justify-center gap-2"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#E0DBD8" />
@@ -59,14 +59,14 @@ export default function HomeClient() {
 
                     <Link
                         href="/feed"
-                        className="flex-1 bg-white/50 backdrop-blur-sm text-[#A41F13] border-2 border-[#A41F13] py-4 rounded-xl font-bold text-lg hover:bg-[#A41F13] hover:text-[#E0DBD8] transition-all flex items-center justify-center"
+                        className="flex-1 bg-white/50 backdrop-blur-sm text-[#A41F13] border-2 border-[#A41F13] py-3 rounded-xl font-bold text-base hover:bg-[#A41F13] hover:text-[#E0DBD8] transition-all flex items-center justify-center"
                     >
                         Community Feed
                     </Link>
                 </div>
             </main>
 
-            <footer className="absolute bottom-28 text-sm font-medium opacity-60">
+            <footer className="absolute bottom-24 md:bottom-28 text-sm font-medium opacity-60">
                 CAP 9 © {new Date().getFullYear()}
             </footer>
         </div>

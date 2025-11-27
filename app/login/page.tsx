@@ -20,18 +20,18 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#E0DBD8] text-[#A41F13] p-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-[#E0DBD8] text-[#A41F13] p-4 pb-24 relative overflow-hidden">
             {/* Background Texture/Gradient */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-[#A41F13] rounded-full blur-[150px] opacity-10" />
                 <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-[#A41F13] rounded-full blur-[150px] opacity-10" />
             </div>
 
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl border-2 border-[#A41F13]/10 text-center relative z-10">
-                <h1 className="text-4xl font-black mb-2 text-[#A41F13] tracking-tight">
+            <div className="w-full max-w-md bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-[#A41F13]/10 text-center relative z-10">
+                <h1 className="text-3xl md:text-4xl font-black mb-2 text-[#A41F13] tracking-tight">
                     Join the Hunt
                 </h1>
-                <p className="text-[#A41F13]/60 mb-8 font-medium">Sign in to start collecting colors.</p>
+                <p className="text-[#A41F13]/60 mb-6 md:mb-8 font-medium">Sign in to start collecting colors.</p>
 
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl mb-6 text-sm text-left font-medium">
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
                 <button
                     onClick={handleGoogleLogin}
-                    className="w-full bg-[#A41F13] hover:bg-[#8a1a10] text-[#E0DBD8] font-bold py-4 px-4 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"
+                    className="w-full bg-[#A41F13] hover:bg-[#8a1a10] text-[#E0DBD8] font-bold py-3 md:py-4 px-4 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"
                 >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                         <path

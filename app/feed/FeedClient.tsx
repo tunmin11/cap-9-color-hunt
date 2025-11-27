@@ -52,7 +52,7 @@ export default function FeedClient() {
                             <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
                                 <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">
                                     {/* Header */}
-                                    <div className="p-4 flex items-center justify-between border-b border-[#A41F13]/10 bg-[#A41F13]/5">
+                                    <div className="p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#A41F13]/10 bg-[#A41F13]/5">
                                         <div className="flex items-center gap-3">
                                             <Link
                                                 href={`/profile/${pack.user?.uid}`}
@@ -70,16 +70,16 @@ export default function FeedClient() {
                                                         {pack.user?.displayName?.[0]?.toUpperCase() || "?"}
                                                     </div>
                                                 )}
-                                                <span className="font-bold text-sm text-[#A41F13]">{pack.user?.displayName || "Anonymous"}</span>
+                                                <span className="font-bold text-sm text-[#A41F13] truncate max-w-[150px] sm:max-w-none">{pack.user?.displayName || "Anonymous"}</span>
                                             </Link>
                                         </div>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 pl-11 sm:pl-0">
                                             <div
-                                                className="w-3 h-3 rounded-full border border-black/10 shadow-sm"
+                                                className="w-3 h-3 rounded-full border border-black/10 shadow-sm shrink-0"
                                                 style={{ backgroundColor: pack.targetColor.hex }}
                                             />
-                                            <span className="text-xs text-[#A41F13]/60 font-medium">
+                                            <span className="text-xs text-[#A41F13]/60 font-medium truncate">
                                                 {pack.targetColor.name} • {new Date(pack.completedAt?._seconds * 1000).toLocaleDateString()}
                                             </span>
                                         </div>
