@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function NavBar() {
     const pathname = usePathname();
@@ -50,7 +51,12 @@ export function NavBar() {
 
     return (
         <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-            <nav className="flex items-center gap-2 px-4 py-3 bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl shadow-black/50 pointer-events-auto transition-all duration-300 hover:scale-[1.02] hover:bg-neutral-900/90">
+            <motion.nav
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="flex items-center gap-2 px-4 py-3 bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl shadow-black/50 pointer-events-auto"
+            >
                 {navItems.map((item) => {
                     const active = isActive(item.href);
 
@@ -59,10 +65,15 @@ export function NavBar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="flex items-center justify-center w-12 h-12 mx-2 bg-white text-black rounded-full shadow-lg shadow-white/10 transition-all duration-200 hover:scale-110 active:scale-90 hover:rotate-3"
                                 aria-label={item.name}
                             >
-                                {item.icon}
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="flex items-center justify-center w-12 h-12 mx-2 bg-white text-black rounded-full shadow-lg shadow-white/10"
+                                >
+                                    {item.icon}
+                                </motion.div>
                             </Link>
                         );
                     }
@@ -71,25 +82,35 @@ export function NavBar() {
                         <Link
                             key={item.name}
                             href={item.href}
-                            className={`
-                relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 group
-                ${active ? "text-white bg-white/10 scale-110" : "text-neutral-400 hover:text-white hover:bg-white/5 hover:scale-110"}
-              `}
+                            className="relative"
                             aria-label={item.name}
                         >
-                            {item.icon}
-                            {active && (
-                                <span className="absolute -bottom-1 w-1 h-1 bg-white rounded-full animate-fade-in" />
-                            )}
+                            <motion.div
+                                className={`
+                                    relative flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-200
+                                    ${active ? "text-white" : "text-neutral-400 hover:text-white"}
+                                `}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                            >
+                                {active && (
+                                    <motion.div
+                                        layoutId="nav-pill"
+                                        className="absolute inset-0 bg-white/10 rounded-full"
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{item.icon}</span>
+                            </motion.div>
 
                             {/* Tooltip */}
-                            <span className="absolute -top-10 px-2 py-1 text-xs font-medium text-white bg-neutral-800 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 pointer-events-none whitespace-nowrap">
+                            <span className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 text-xs font-medium text-white bg-neutral-800 rounded opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                                 {item.name}
                             </span>
                         </Link>
                     );
                 })}
-            </nav>
+            </motion.nav>
         </div>
     );
 }

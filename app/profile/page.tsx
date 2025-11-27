@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Logo } from "@/components/Logo";
 import { PackGridSkeleton } from "@/components/Skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -116,7 +117,11 @@ export default function ProfilePage() {
             <div className="min-h-screen bg-background text-foreground p-3 md:p-4 pb-24">
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
-                    <div className="flex flex-col items-center mb-6 md:mb-8 pt-6 md:pt-8 relative">
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center mb-6 md:mb-8 pt-6 md:pt-8 relative"
+                    >
                         {/* Logo */}
                         <div className="absolute top-0 left-0">
                             <Logo className="w-6 h-6 md:w-8 md:h-8 opacity-50" />
@@ -130,22 +135,26 @@ export default function ProfilePage() {
                             Logout
                         </button>
 
-                        <div className="relative group cursor-pointer" onClick={handleEditClick}>
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="relative group cursor-pointer"
+                            onClick={handleEditClick}
+                        >
                             {user?.photoURL ? (
                                 <img
                                     src={user.photoURL}
                                     alt="Profile"
-                                    className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-[#A41F13] group-hover:scale-105 transition-transform"
+                                    className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-[#A41F13] transition-transform"
                                 />
                             ) : (
-                                <div className="w-20 h-20 md:w-24 md:h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold border-4 border-[#A41F13] group-hover:scale-105 transition-transform">
+                                <div className="w-20 h-20 md:w-24 md:h-24 bg-[#A41F13] text-[#E0DBD8] rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold border-4 border-[#A41F13] transition-transform">
                                     {user?.email?.[0].toUpperCase()}
                                 </div>
                             )}
                             <div className="absolute inset-0 flex items-center justify-center bg-[#A41F13]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="text-xs font-bold text-white">Edit</span>
                             </div>
-                        </div>
+                        </motion.div>
 
                         <h1 className="text-xl md:text-2xl font-black mt-4 tracking-tight text-center break-all px-4">{user?.displayName || user?.email?.split("@")[0]}</h1>
 
@@ -166,7 +175,7 @@ export default function ProfilePage() {
                                 Completed
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Tabs */}
                     <div className="flex border-b-2 border-[#A41F13]/10 mb-8">
@@ -204,7 +213,11 @@ export default function ProfilePage() {
                     ) : loading ? (
                         <PackGridSkeleton />
                     ) : displayedPacks.length === 0 ? (
-                        <div className="text-center text-[#A41F13]/50 py-20">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center text-[#A41F13]/50 py-20"
+                        >
                             {activeTab === "inprogress" ? (
                                 <div>
                                     <p className="mb-4 font-medium">No active hunts.</p>
@@ -215,53 +228,67 @@ export default function ProfilePage() {
                             ) : (
                                 <p className="font-medium">No completed hunts yet. Keep going!</p>
                             )}
-                        </div>
+                        </motion.div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-                            {displayedPacks.map((pack) => (
-                                <Link href={`/packs/${pack.id}`} key={pack.id} className="block group">
-                                    <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">
-                                        <div className="p-3 flex items-center justify-between border-b border-[#A41F13]/10 bg-[#A41F13]/5">
-                                            <div className="flex items-center gap-2">
-                                                <div
-                                                    className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
-                                                    style={{ backgroundColor: pack.targetColor.hex }}
-                                                />
-                                                <span className="font-bold text-sm text-[#A41F13]">{pack.targetColor.name}</span>
+                        <motion.div
+                            layout
+                            className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4"
+                        >
+                            <AnimatePresence mode="popLayout">
+                                {displayedPacks.map((pack) => (
+                                    <motion.div
+                                        key={pack.id}
+                                        layout
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.8, opacity: 0 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                    >
+                                        <Link href={`/packs/${pack.id}`} className="block group h-full">
+                                            <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg h-full">
+                                                <div className="p-3 flex items-center justify-between border-b border-[#A41F13]/10 bg-[#A41F13]/5">
+                                                    <div className="flex items-center gap-2">
+                                                        <div
+                                                            className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
+                                                            style={{ backgroundColor: pack.targetColor.hex }}
+                                                        />
+                                                        <span className="font-bold text-sm text-[#A41F13]">{pack.targetColor.name}</span>
+                                                    </div>
+                                                    {pack.status === "complete" && (
+                                                        <span className="text-xs bg-[#A41F13] text-white px-2 py-0.5 rounded-full font-bold">
+                                                            Done
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="aspect-square p-2">
+                                                    <div className="grid grid-cols-3 gap-0.5 w-full h-full rounded-lg overflow-hidden">
+                                                        {Array.from({ length: 9 }).map((_, i) => {
+                                                            const img = pack.images?.[i];
+                                                            return (
+                                                                <div key={i} className="relative bg-[#A41F13]/5">
+                                                                    {img?.imageUrl ? (
+                                                                        <img
+                                                                            src={img.imageUrl}
+                                                                            alt=""
+                                                                            className="w-full h-full object-cover"
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            className="w-full h-full opacity-20"
+                                                                            style={{ backgroundColor: pack.targetColor.hex }}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {pack.status === "complete" && (
-                                                <span className="text-xs bg-[#A41F13] text-white px-2 py-0.5 rounded-full font-bold">
-                                                    Done
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="aspect-square p-2">
-                                            <div className="grid grid-cols-3 gap-0.5 w-full h-full rounded-lg overflow-hidden">
-                                                {Array.from({ length: 9 }).map((_, i) => {
-                                                    const img = pack.images?.[i];
-                                                    return (
-                                                        <div key={i} className="relative bg-[#A41F13]/5">
-                                                            {img?.imageUrl ? (
-                                                                <img
-                                                                    src={img.imageUrl}
-                                                                    alt=""
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            ) : (
-                                                                <div
-                                                                    className="w-full h-full opacity-20"
-                                                                    style={{ backgroundColor: pack.targetColor.hex }}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
+                                        </Link>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
                     )}
                 </div>
 
