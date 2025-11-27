@@ -64,7 +64,7 @@ export function NavBar() {
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className="flex items-center gap-2 px-4 py-3 bg-neutral-900/60 backdrop-blur-2xl border border-white/20 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] shadow-black/70 pointer-events-auto ring-1 ring-white/10"
+                className="flex items-center gap-2 px-4 py-3 bg-neutral-900/60 backdrop-blur-sm border border-white/20 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] shadow-black/70 pointer-events-auto ring-1 ring-white/10"
             >
                 {navItems.map((item) => {
                     const active = isActive(item.href);
