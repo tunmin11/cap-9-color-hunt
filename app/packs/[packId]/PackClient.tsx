@@ -69,49 +69,85 @@ export default function PackClient() {
             const ctx = canvas.getContext('2d');
             if (!ctx) return null;
 
-            // 1. Background
-            ctx.fillStyle = '#E0DBD8';
+            // 1. Background Gradient
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#E0DBD8'); // Light base
+            gradient.addColorStop(1, '#D6D3D0'); // Slightly darker bottom
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
 
-            // 2. Background Texture (Subtle Circles)
-            ctx.fillStyle = '#A41F13';
-            ctx.globalAlpha = 0.03;
-            ctx.beginPath();
-            ctx.arc(0, 0, 600, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(width, height, 800, 0, Math.PI * 2);
-            ctx.fill();
+            // 2. Aesthetic Glow/Blobs
+            // Top-left glow (Target Color)
+            const glow1 = ctx.createRadialGradient(0, 0, 0, 0, 0, 800);
+            glow1.addColorStop(0, `${pack.targetColor.hex}40`); // 25% opacity
+            glow1.addColorStop(1, `${pack.targetColor.hex}00`); // 0% opacity
+            ctx.fillStyle = glow1;
+            ctx.fillRect(0, 0, 800, 800);
+
+            // Bottom-right glow (Accent/Logo Color)
+            const glow2 = ctx.createRadialGradient(width, height, 0, width, height, 900);
+            glow2.addColorStop(0, '#A41F1320'); // 12% opacity
+            glow2.addColorStop(1, '#A41F1300'); // 0% opacity
+            ctx.fillStyle = glow2;
+            ctx.fillRect(width - 900, height - 900, 900, 900);
+
+            // Random floating circles for texture
+            ctx.fillStyle = pack.targetColor.hex;
+            ctx.globalAlpha = 0.05;
+            for (let k = 0; k < 5; k++) {
+                const r = 50 + Math.random() * 100;
+                const cx = Math.random() * width;
+                const cy = Math.random() * height;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
             ctx.globalAlpha = 1.0;
+
 
             // 3. Header: Logo
             try {
                 // Load logo from public folder
                 const logoImg = await loadImage('/logo.svg');
-                const logoWidth = 100;
+                const logoWidth = 120;
                 const logoHeight = logoWidth * (logoImg.height / logoImg.width);
-                ctx.drawImage(logoImg, (width - logoWidth) / 2, 120, logoWidth, logoHeight);
+                ctx.drawImage(logoImg, (width - logoWidth) / 2, 140, logoWidth, logoHeight);
             } catch (e) {
                 // Fallback text if logo fails
                 ctx.fillStyle = '#A41F13';
                 ctx.font = '900 100px "Inter", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('CAP 9', width / 2, 180);
+                ctx.fillText('CAP 9', width / 2, 200);
             }
 
-            // 4. The Grid
+            // 4. The Grid Container (Glassmorphism)
             const gridSize = width - (padding * 2);
-            const cellSize = (gridSize - (gap * 2)) / 3;
-            // Center grid vertically, but slightly higher to leave room for footer
             const gridStartY = (height - gridSize) / 2 - 50;
 
-            // Draw Grid Background/Border
+            // Shadow for the card
+            ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+
+            // White card background
             ctx.fillStyle = '#ffffff';
-            ctx.roundRect(padding - 20, gridStartY - 20, gridSize + 40, gridSize + 40, 30);
+            ctx.roundRect(padding - 30, gridStartY - 30, gridSize + 60, gridSize + 60, 40);
             ctx.fill();
 
+            // Reset shadow
+            ctx.shadowColor = "transparent";
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Inner border for "stack" effect
+            ctx.strokeStyle = '#E0DBD8';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
             // Load all images
+            const cellSize = (gridSize - (gap * 2)) / 3;
+
             for (let i = 0; i < 9; i++) {
                 const row = Math.floor(i / 3);
                 const col = i % 3;
@@ -120,11 +156,11 @@ export default function PackClient() {
 
                 const imgData = pack.images[i];
 
-                // Placeholder
-                ctx.fillStyle = pack.targetColor.hex;
-                ctx.globalAlpha = 0.1;
-                ctx.fillRect(x, y, cellSize, cellSize);
-                ctx.globalAlpha = 1.0;
+                // Placeholder / Empty Cell Background
+                ctx.fillStyle = '#F5F5F4'; // Very light grey
+                ctx.beginPath();
+                ctx.roundRect(x, y, cellSize, cellSize, 12);
+                ctx.fill();
 
                 if (imgData?.imageUrl) {
                     try {
@@ -139,22 +175,28 @@ export default function PackClient() {
 
                         ctx.save();
                         ctx.beginPath();
-                        ctx.roundRect(x, y, cellSize, cellSize, 10); // Rounded corners for cells
+                        ctx.roundRect(x, y, cellSize, cellSize, 12); // Rounded corners for cells
                         ctx.clip();
                         ctx.drawImage(img, x + ox, y + oy, w, h);
                         ctx.restore();
                     } catch (e) {
                         console.error("Error loading image for canvas", e);
                     }
+                } else {
+                    // Empty state dot
+                    ctx.fillStyle = '#E0DBD8';
+                    ctx.beginPath();
+                    ctx.arc(x + cellSize / 2, y + cellSize / 2, 6, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             }
 
             // 5. Footer Info
-            const footerY = gridStartY + gridSize + 80;
+            const footerY = gridStartY + gridSize + 100;
 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.font = 'bold 32px "Inter", sans-serif';
+            ctx.font = 'bold 36px "Inter", sans-serif';
 
             // Username . [Dot] Color Name . CTA
             const username = `@${pack.user?.displayName || "Anonymous"}`;
@@ -178,15 +220,17 @@ export default function PackClient() {
             const part1Width = ctx.measureText(part1).width;
             const dotX = startX + part1Width + 10; // Add a little padding
             const dotY = footerY;
-            const dotRadius = 12;
+            const dotRadius = 14;
 
             ctx.beginPath();
             ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
             ctx.fillStyle = pack.targetColor.hex;
             ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-            ctx.lineWidth = 1;
+            // Dot glow
+            ctx.shadowColor = pack.targetColor.hex;
+            ctx.shadowBlur = 10;
             ctx.stroke();
+            ctx.shadowBlur = 0; // Reset
 
             // Draw Part 2 (Color Name + Sep + CTA)
             ctx.fillStyle = '#A41F13';

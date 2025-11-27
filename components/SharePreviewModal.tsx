@@ -49,7 +49,7 @@ export default function SharePreviewModal({ isOpen, onClose, imageBlob, packColo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <div className="bg-[#E0DBD8] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-[#ffffff] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
                 <div className="p-4 border-b border-[#A41F13]/10 flex justify-between items-center bg-white">
                     <h3 className="font-black text-[#A41F13] text-lg">Share Preview</h3>
                     <button onClick={onClose} className="text-[#A41F13]/60 hover:text-[#A41F13]">
