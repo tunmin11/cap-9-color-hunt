@@ -9,7 +9,7 @@ export default function HomeClient() {
     const { user, login } = useAuth();
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 pb-24 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
+        <div className="h-[100dvh] bg-background text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
 
             {/* Background Texture/Gradient */}
             <div className="absolute inset-0 z-0 pointer-events-none">

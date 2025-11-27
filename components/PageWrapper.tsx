@@ -6,7 +6,7 @@ export default function PageWrapper({ children }: { children: React.ReactNode })
     const pathname = usePathname();
 
     return (
-        <div key={pathname} className="animate-fade-in">
+        <div key={pathname} className="animate-fade-in pb-28">
             {children}
         </div>
     );
