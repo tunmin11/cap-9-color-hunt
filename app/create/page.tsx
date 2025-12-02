@@ -65,7 +65,7 @@ export default function CreatePackPage() {
 
     return (
         <AuthGuard>
-            <div className="min-h-screen bg-background text-foreground p-8 relative overflow-hidden flex flex-col">
+            <div className="h-screen max-h-screen bg-background text-foreground p-8 relative overflow-hidden flex flex-col">
 
                 {/* Background Texture/Gradient */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
@@ -86,20 +86,20 @@ export default function CreatePackPage() {
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6 mb-12">
+                        <div className="grid grid-cols-5 xs:grid-cols-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-11 gap-2 md:gap-4 mb-12">
                             {Array.from({ length: 15 }).map((_, i) => (
                                 <Skeleton key={i} className="aspect-square rounded-2xl" />
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6 mb-12">
+                        <div className="grid grid-cols-5 xs:grid-cols-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-11 gap-2 md:gap-4 mb-12">
                             {colors.map((color, index) => (
                                 <button
                                     key={color.id}
                                     onClick={() => setSelectedColor(color)}
                                     style={{ animationDelay: `${index * 50}ms` }}
                                     className={`relative group rounded-2xl overflow-hidden aspect-square transition-all duration-300 shadow-xl animate-slide-up opacity-0 ${selectedColor?.id === color.id
-                                        ? "ring-4 ring-[#A41F13] scale-105 z-10"
+                                        ? "ring-4 ring-[#A41F13] scale-105 z-10 opacity-100"
                                         : "hover:scale-105 opacity-90 hover:opacity-100 hover:ring-2 hover:ring-black/10"
                                         }`}
                                 >
@@ -109,8 +109,8 @@ export default function CreatePackPage() {
                                     />
 
                                     {/* Overlay for text visibility */}
-                                    <div className="absolute inset-0 flex items-end justify-center pb-4 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span className="font-bold text-white text-sm tracking-widest uppercase shadow-sm">{color.name}</span>
+                                    <div className="absolute inset-0 flex items-end justify-center pb-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <span className="font-bold text-white text-[10px] leading-none tracking-widest uppercase shadow-sm">{color.name}</span>
                                     </div>
 
                                     {selectedColor?.id === color.id && (
@@ -128,28 +128,53 @@ export default function CreatePackPage() {
                     )}
 
                     <div className="flex justify-center pb-24">
-                        <button
-                            onClick={handleCreatePack}
-                            disabled={!selectedColor || creating}
-                            className={`px-12 py-5 rounded-full font-black text-xl tracking-wide transition-all shadow-2xl flex items-center gap-3 active:scale-95 ${selectedColor
-                                ? "bg-[#A41F13] text-[#E0DBD8] hover:scale-105 hover:shadow-[#A41F13]/50"
-                                : "bg-neutral-800/20 text-neutral-500 cursor-not-allowed"
-                                }`}
-                        >
-                            {creating ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-current"></div>
-                                    <span>CREATING...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <span>START HUNT</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </>
-                            )}
-                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => {
+                                    if (colors.length === 0) return;
+
+                                    // Shuffle animation
+                                    let count = 0;
+                                    const maxCount = 20;
+                                    const interval = setInterval(() => {
+                                        const randomIndex = Math.floor(Math.random() * colors.length);
+                                        setSelectedColor(colors[randomIndex]);
+                                        count++;
+
+                                        if (count >= maxCount) {
+                                            clearInterval(interval);
+                                        }
+                                    }, 100);
+                                }}
+                                disabled={creating || loading}
+                                className="px-8 py-5 rounded-full font-bold text-xl tracking-wide transition-all shadow-xl bg-white text-[#A41F13] border-2 border-[#A41F13] hover:bg-[#A41F13]/5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                RANDOM PICK
+                            </button>
+
+                            <button
+                                onClick={handleCreatePack}
+                                disabled={!selectedColor || creating}
+                                className={`px-12 py-5 rounded-full font-black text-xl tracking-wide transition-all shadow-2xl flex items-center gap-3 active:scale-95 ${selectedColor
+                                    ? "bg-[#A41F13] text-[#E0DBD8] hover:scale-105 hover:shadow-[#A41F13]/50"
+                                    : "bg-neutral-800/20 text-neutral-500 cursor-not-allowed"
+                                    }`}
+                            >
+                                {creating ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-current"></div>
+                                        <span>CREATING...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>START HUNT</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

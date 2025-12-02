@@ -8,6 +8,7 @@ import { updateProfile } from "firebase/auth";
 import { Logo } from "@/components/Logo";
 import { PackGridSkeleton } from "@/components/Skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import VoteControl from "@/components/VoteControl";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -22,11 +23,14 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const { logout, refreshUser } = useAuth();
 
+    const [userData, setUserData] = useState<any>(null);
+
     useEffect(() => {
         if (!user) return;
 
-        const fetchPacks = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch packs
                 const response = await fetch(`/api/packs/user?userId=${user.uid}`);
                 if (!response.ok) {
                     const data = await response.json();
@@ -34,15 +38,22 @@ export default function ProfilePage() {
                 }
                 const data = await response.json();
                 setPacks(data);
+
+                // Fetch user details (for counts)
+                const userRes = await fetch(`/api/users/${user.uid}`);
+                if (userRes.ok) {
+                    const uData = await userRes.json();
+                    setUserData(uData);
+                }
             } catch (err: any) {
-                console.error("Error fetching packs:", err);
+                console.error("Error fetching data:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchPacks();
+        fetchData();
     }, [user]);
 
     const completedPacks = packs.filter(p => p.status === "complete");
@@ -174,6 +185,14 @@ export default function ProfilePage() {
                                 <span className="block text-[#A41F13] font-black text-lg md:text-xl">{completedPacks.length}</span>
                                 Completed
                             </div>
+                            <div className="text-center">
+                                <span className="block text-[#A41F13] font-black text-lg md:text-xl">{userData?.followersCount || 0}</span>
+                                Followers
+                            </div>
+                            <div className="text-center">
+                                <span className="block text-[#A41F13] font-black text-lg md:text-xl">{userData?.followingCount || 0}</span>
+                                Following
+                            </div>
                         </div>
                     </motion.div>
 
@@ -282,6 +301,15 @@ export default function ProfilePage() {
                                                             );
                                                         })}
                                                     </div>
+                                                </div>
+
+                                                {/* Vote Control */}
+                                                <div className="px-3 py-2 border-t border-[#A41F13]/10 flex justify-end" onClick={(e) => e.preventDefault()}>
+                                                    <VoteControl
+                                                        packId={pack.id}
+                                                        initialScore={pack.likesCount || 0}
+                                                        initialUserVote={pack.userVote || 0}
+                                                    />
                                                 </div>
                                             </div>
                                         </Link>

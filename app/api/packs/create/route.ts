@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { adminDb, adminAuth } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: Request) {
@@ -10,13 +10,36 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Fetch user details for denormalization
+        let userDisplayName = "Anonymous";
+        let userPhotoURL = null;
+        try {
+            const userDoc = await adminDb.collection("users").doc(userId).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                userDisplayName = userData?.displayName || "Anonymous";
+                userPhotoURL = userData?.photoURL || null;
+            } else {
+                const authUser = await adminAuth.getUser(userId);
+                userDisplayName = authUser.displayName || authUser.email?.split("@")[0] || "Anonymous";
+                userPhotoURL = authUser.photoURL || null;
+            }
+        } catch (e) {
+            console.error("Failed to fetch user details for pack creation:", e);
+        }
+
         const packData = {
             userId,
             targetColorId,
             targetColor,
-            status: "incomplete",
+            status: "active", // Changed from "incomplete" to "active"
             createdAt: FieldValue.serverTimestamp(),
-            images: {},
+            images: [], // Changed from {} to []
+            completedAt: null, // Added new field
+            likesCount: 0, // Added new field
+            commentsCount: 0, // Added new field
+            userDisplayName, // Added new field
+            userPhotoURL // Added new field
         };
 
         const docRef = await adminDb.collection("packs").add(packData);

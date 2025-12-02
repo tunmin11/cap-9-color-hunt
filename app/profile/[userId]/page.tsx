@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-
+import { useAuth } from "@/context/AuthContext";
+import FollowButton from "@/components/FollowButton";
+import VoteControl from "@/components/VoteControl";
 
 export default function PublicProfilePage() {
     const params = useParams();
     const userId = params.userId as string;
+    const { user } = useAuth();
 
     const [profileUser, setProfileUser] = useState<any>(null);
     const [packs, setPacks] = useState<any[]>([]);
@@ -19,24 +22,13 @@ export default function PublicProfilePage() {
 
         const fetchData = async () => {
             try {
-                // 1. Fetch User Data (We can reuse the packs endpoint or make a new one, 
-                // but for now let's just infer from packs or we need a public user endpoint.
-                // Actually, we don't have a public user endpoint. 
-                // Let's rely on the packs endpoint to get packs, and maybe we can extract user info from there 
-                // if we update the packs endpoint to return user info, OR we create a simple user fetcher.
+                const headers: HeadersInit = {};
+                if (user) {
+                    const token = await user.getIdToken();
+                    headers["Authorization"] = `Bearer ${token}`;
+                }
 
-                // Let's create a quick way to get user info. 
-                // Since we don't have a dedicated public user API, we'll fetch packs and use the first one's user data 
-                // IF we had it denormalized. But we don't.
-                // We should probably add a route to get public user info.
-                // For MVP, let's just fetch packs and if the API returns user info attached to packs (which we just added for feed, but not for user packs endpoint), we could use that.
-
-                // Wait, the /api/packs/user endpoint just returns packs.
-                // Let's assume we need to fetch user info separately.
-                // I'll create a simple client-side fetch to a new endpoint or just use the packs for now and show "User's Profile".
-                // BETTER: Let's make a new endpoint /api/users/[userId]
-
-                const userRes = await fetch(`/api/users/${userId}`);
+                const userRes = await fetch(`/api/users/${userId}`, { headers });
                 if (!userRes.ok) throw new Error("User not found");
                 const userData = await userRes.json();
                 setProfileUser(userData);
@@ -55,7 +47,7 @@ export default function PublicProfilePage() {
         };
 
         fetchData();
-    }, [userId]);
+    }, [userId, user]);
 
     const completedPacks = packs.filter(p => p.status === "complete");
 
@@ -95,7 +87,32 @@ export default function PublicProfilePage() {
                                     <span className="block text-[#A41F13] font-black text-xl">{completedPacks.length}</span>
                                     Completed
                                 </div>
+                                <div className="text-center">
+                                    <span className="block text-[#A41F13] font-black text-xl">{profileUser?.followersCount || 0}</span>
+                                    Followers
+                                </div>
+                                <div className="text-center">
+                                    <span className="block text-[#A41F13] font-black text-xl">{profileUser?.followingCount || 0}</span>
+                                    Following
+                                </div>
                             </div>
+
+                            {user && user.uid !== userId && (
+                                <div className="mt-6">
+                                    <FollowButton
+                                        targetUserId={userId}
+                                        initialIsFollowing={profileUser?.isFollowing || false}
+                                        onFollowChange={(isFollowing) => {
+                                            setProfileUser((prev: any) => ({
+                                                ...prev,
+                                                followersCount: isFollowing
+                                                    ? (prev.followersCount || 0) + 1
+                                                    : (prev.followersCount || 0) - 1
+                                            }));
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <h2 className="text-xl font-black mb-6 text-[#A41F13]">Completed Hunts</h2>
@@ -138,6 +155,15 @@ export default function PublicProfilePage() {
                                                         );
                                                     })}
                                                 </div>
+                                            </div>
+
+                                            {/* Vote Control */}
+                                            <div className="px-3 py-2 border-t border-[#A41F13]/10 flex justify-end" onClick={(e) => e.preventDefault()}>
+                                                <VoteControl
+                                                    packId={pack.id}
+                                                    initialScore={pack.likesCount || 0}
+                                                    initialUserVote={pack.userVote || 0}
+                                                />
                                             </div>
                                         </div>
                                     </Link>

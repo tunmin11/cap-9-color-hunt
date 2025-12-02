@@ -4,17 +4,30 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PackGridSkeleton } from "@/components/Skeleton";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import VoteControl from "@/components/VoteControl";
 
 export default function FeedClient() {
+    const { user, loading: authLoading } = useAuth();
     const [packs, setPacks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const [activeTab, setActiveTab] = useState<"global" | "following">("global");
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (authLoading) return;
+
         const fetchPacks = async () => {
+            setLoading(true);
             try {
-                const response = await fetch("/api/feed");
+                const headers: HeadersInit = {};
+                if (user) {
+                    const token = await user.getIdToken();
+                    headers["Authorization"] = `Bearer ${token}`;
+                }
+
+                const url = activeTab === "following" ? "/api/feed?filter=following" : "/api/feed";
+                const response = await fetch(url, { headers });
                 if (!response.ok) {
                     throw new Error("Failed to fetch feed");
                 }
@@ -29,7 +42,7 @@ export default function FeedClient() {
         };
 
         fetchPacks();
-    }, []);
+    }, [authLoading, user, activeTab]);
 
     return (
         <div className="min-h-screen bg-background text-foreground p-4 pb-24">
@@ -42,12 +55,35 @@ export default function FeedClient() {
                     Community Feed
                 </motion.h1>
 
+                {user && (
+                    <div className="flex border-b-2 border-[#A41F13]/10 mb-8">
+                        <button
+                            onClick={() => setActiveTab("global")}
+                            className={`flex-1 pb-4 text-sm font-bold transition-colors ${activeTab === "global"
+                                ? "text-[#A41F13] border-b-4 border-[#A41F13] -mb-[2px]"
+                                : "text-[#A41F13]/40 hover:text-[#A41F13]/60"
+                                }`}
+                        >
+                            Global
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("following")}
+                            className={`flex-1 pb-4 text-sm font-bold transition-colors ${activeTab === "following"
+                                ? "text-[#A41F13] border-b-4 border-[#A41F13] -mb-[2px]"
+                                : "text-[#A41F13]/40 hover:text-[#A41F13]/60"
+                                }`}
+                        >
+                            Following
+                        </button>
+                    </div>
+                )}
+
                 {error ? (
                     <div className="text-center py-20">
                         <p className="text-[#A41F13] mb-2 font-bold">Something went wrong.</p>
                         <p className="text-[#A41F13]/60 text-sm">{error}</p>
                     </div>
-                ) : loading ? (
+                ) : loading || authLoading ? (
                     <PackGridSkeleton />
                 ) : packs.length === 0 ? (
                     <motion.div
@@ -55,7 +91,7 @@ export default function FeedClient() {
                         animate={{ opacity: 1 }}
                         className="text-center text-[#A41F13]/50 py-20 font-medium"
                     >
-                        No completed hunts yet. Be the first!
+                        {activeTab === "following" ? "You aren't following anyone yet." : "No completed hunts yet. Be the first!"}
                     </motion.div>
                 ) : (
                     <motion.div
@@ -78,15 +114,18 @@ export default function FeedClient() {
                                     visible: { opacity: 1, y: 0 }
                                 }}
                             >
-                                <Link href={`/packs/${pack.id}`} className="block group">
-                                    <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all group-hover:border-[#A41F13] group-hover:shadow-lg">
+                                <div className="bg-white rounded-2xl overflow-hidden border-2 border-[#A41F13]/10 transition-all hover:border-[#A41F13] hover:shadow-lg">
+                                    <Link href={`/packs/${pack.id}`} className="block group">
                                         {/* Header */}
                                         <div className="p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#A41F13]/10 bg-[#A41F13]/5">
                                             <div className="flex items-center gap-3">
-                                                <Link
-                                                    href={`/profile/${pack.user?.uid}`}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to profile
+                                                        window.location.href = `/profile/${pack.user?.uid}`;
+                                                    }}
+                                                    className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
                                                 >
                                                     {pack.user?.photoURL ? (
                                                         <img
@@ -100,7 +139,7 @@ export default function FeedClient() {
                                                         </div>
                                                     )}
                                                     <span className="font-bold text-sm text-[#A41F13] truncate max-w-[150px] sm:max-w-none">{pack.user?.displayName || "Anonymous"}</span>
-                                                </Link>
+                                                </div>
                                             </div>
 
                                             <div className="flex items-center gap-2 pl-11 sm:pl-0">
@@ -138,8 +177,19 @@ export default function FeedClient() {
                                                 })}
                                             </div>
                                         </div>
+                                    </Link>
+
+                                    {/* Actions Footer */}
+                                    <div className="px-4 py-3 border-t border-[#A41F13]/10 flex flex-col gap-3">
+                                        <div className="flex items-start gap-4">
+                                            <VoteControl
+                                                packId={pack.id}
+                                                initialScore={pack.likesCount || 0}
+                                                initialUserVote={pack.userVote || 0}
+                                            />
+                                        </div>
                                     </div>
-                                </Link>
+                                </div>
                             </motion.div>
                         ))}
                     </motion.div>
